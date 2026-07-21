@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉他指法庫</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f0e6;
+      color: #3e2723;
+      margin: 0;
+      padding: 20px;
+    }
+    .container { max-width: 1300px; margin: 0 auto; display: flex; gap: 20px; }
+    .left-panel { flex: 1; min-width: 0; }
+    .right-panel {
+      width: 320px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      align-self: flex-start;
+      position: sticky;
+      top: 20px;
+    }
+    .right-panel h3 { margin: 0 0 12px 0; color: #5d4037; font-size: 16px; }
+    .right-panel .empty-state { color: #bcaaa4; font-size: 14px; text-align: center; padding: 40px 0; }
+    .right-panel .detail-label { font-size: 13px; color: #8d6e63; margin-bottom: 4px; margin-top: 12px; }
+    .right-panel .detail-label:first-child { margin-top: 0; }
+    .right-panel .detail-input {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid #d7ccc8; border-radius: 6px;
+      font-family: inherit; font-size: 15px; color: #3e2723;
+      background: #faf8f5;
+    }
+    .right-panel .detail-input:focus { outline: none; border-color: #8d6e63; background: #fff; }
+    .right-panel .detail-time { font-size: 11px; color: #8d6e63; margin-top: 4px; }
+    .right-panel textarea {
+      width: 100%; min-height: 120px; padding: 10px;
+      border: 1px solid #d7ccc8; border-radius: 6px;
+      font-family: inherit; font-size: 14px; color: #3e2723;
+      resize: vertical; background: #faf8f5;
+    }
+    .right-panel textarea:focus { outline: none; border-color: #8d6e63; background: #fff; }
+    .right-panel .save-btn {
+      width: 100%; margin-top: 10px; padding: 8px;
+      background: #8d6e63; color: white; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    .right-panel .save-btn:hover { background: #6d4c41; }
+    .right-panel .save-btn.saved { background: #66bb6a; }
+
+    h2 { text-align: center; margin-bottom: 8px; color: #5d4037; }
+    .subtitle { text-align: center; color: #8d6e63; font-size: 14px; margin-bottom: 20px; }
+    .controls {
+      display: flex; gap: 12px; margin-bottom: 16px;
+      flex-wrap: wrap; justify-content: center;
+    }
+    select, input, button {
+      padding: 8px 14px; border-radius: 8px;
+      border: 1px solid #bcaaa4; font-size: 14px;
+    }
+    button {
+      border: none; background: #8d6e63; color: white;
+      cursor: pointer; transition: all 0.2s;
+    }
+    button:hover { background: #6d4c41; }
+    .sound-controls {
+      display: flex; gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .sound-controls button {
+      background: #5d4037;
+      font-size: 13px;
+      padding: 6px 12px;
+    }
+    .sound-controls button:hover { background: #3e2723; }
+    #fretboardContainer {
+      position: relative;
+      margin: 0 auto 20px;
+      width: 100%;
+      max-width: 1100px;
+      height: 280px;
+      background: #3e2723;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .legend {
+      display: flex; gap: 20px; justify-content: center;
+      margin-bottom: 16px; font-size: 13px; color: #5d4037;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      display: inline-block; border: 2px solid #fff;
+    }
+    .finger-selector {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .finger-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      font-weight: bold; cursor: pointer; transition: all 0.2s;
+    }
+    .saved-panel {
+      background: #fff; border-radius: 10px; padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .saved-panel h3 { margin: 0 0 12px 0; color: #5d4037; font-size: 16px; }
+    #savedChords { display: flex; flex-direction: column; gap: 10px; }
+    .chord-card {
+      background: #efebe9; padding: 12px 16px;
+      border-radius: 8px; border: 1px solid #d7ccc8;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .chord-card:hover { background: #d7ccc8; }
+    .chord-card.active { border-color: #8d6e63; background: #d7ccc8; box-shadow: 0 0 0 2px #8d6e63; }
+    .chord-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chord-header-left {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .chord-name { font-weight: bold; color: #5d4037; font-size: 15px; }
+    .chord-time { font-size: 11px; color: #8d6e63; }
+    .chord-del {
+      background: none; border: none; color: #a1887f;
+      cursor: pointer; font-size: 14px; padding: 0 4px;
+    }
+    .chord-memo {
+      font-size: 13px; color: #6d4c41; line-height: 1.5;
+      padding-left: 4px; border-left: 2px solid #bcaaa4;
+    }
+
+    /* Note toggle buttons */
+    .note-toggle-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .note-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #d7ccc8;
+      background: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .note-toggle-btn:hover {
+      border-color: #8d6e63;
+      background: #faf8f5;
+    }
+    .note-toggle-btn.active {
+      border-width: 3px;
+      background: #fff;
+    }
+    .storage-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .storage-controls button {
+      background: #6d4c41;
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    .storage-controls button:hover { background: #4e342e; }
+    .storage-controls button.danger {
+      background: #c62828;
+    }
+    .storage-controls button.danger:hover {
+      background: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center; margin-bottom:8px; color:#5d4037;">吉他指法庫</h2>
+  <p style="text-align:center; color:#8d6e63; font-size:14px; margin-bottom:20px;">點擊指板上的位置來標記指法，或使用下方預設和弦</p>
+
+  <div class="container">
+    <div class="left-panel">
+      <div class="controls">
+        <select id="chordSelect">
+          <option value="">-- 選擇預設和弦 --</option>
+          <option value="C">C 大三和弦</option>
+          <option value="G">G 大三和弦</option>
+          <option value="D">D 大三和弦</option>
+          <option value="A">A 大三和弦</option>
+          <option value="E">E 大三和弦</option>
+          <option value="F">F 大三和弦</option>
+          <option value="Am">Am 小三和弦</option>
+          <option value="Em">Em 小三和弦</option>
+          <option value="Dm">Dm 小三和弦</option>
+          <option value="G7">G7 屬七和弦</option>
+          <option value="C7">C7 屬七和弦</option>
+          <option value="A7">A7 屬七和弦</option>
+          <option value="Bm">Bm 小三和弦</option>
+          <option value="B7">B7 屬七和弦</option>
+          <option value="Fmaj7">Fmaj7 大七和弦</option>
+          <option value="Cmaj7">Cmaj7 大七和弦</option>
+        </select>
+        <input id="chordName" placeholder="和弦名稱 (如 Cadd9)" />
+        <button onclick="saveChord()">儲存指法</button>
+        <button onclick="clearBoard()" style="background:#a1887f">清空</button>
+      </div>
+
+      <div class="sound-controls">
+        <button onclick="playNotesSequential()">一個一個發音</button>
+        <button onclick="playNotesTogether()">一起發音</button>
+        <button onclick="highlightSameNotes()">標出相同音</button>
+      </div>
+
+      <!-- Note toggle buttons (C-D-E-F-G-A-B) -->
+      <div class="note-toggle-row" id="noteToggleRow"></div>
+
+      <div id="fretboardContainer">
+        <div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg,#4e342e 0px,#3e2723 2px,#4e342e 4px); opacity:0.6;"></div>
+        <div id="fretsLayer" style="position:absolute; inset:0;"></div>
+        <div id="stringsLayer" style="position:absolute; inset:0;"></div>
+        <div id="inlaysLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
+        <div id="noteLabelsLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
+        <div id="clickLayer" style="position:absolute; inset:0;"></div>
+        <div id="fingersLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
+        <div id="highlightLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#ff7043"></span> 食指 (1)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#66bb6a"></span> 中指 (2)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#42a5f5"></span> 無名指 (3)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ab47bc"></span> 小指 (4)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#78909c"></span> 拇指 (T)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#fff; border-color:#5d4037"></span> 空弦 (O)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3e2723"></span> 悶弦 (X)</div>
+      </div>
+
+      <div class="finger-selector">
+        <button class="finger-btn" onclick="setFinger(1)" style="border:2px solid #ff7043; background:#ff7043; color:white">1</button>
+        <button class="finger-btn" onclick="setFinger(2)" style="border:2px solid #66bb6a; background:#66bb6a; color:white">2</button>
+        <button class="finger-btn" onclick="setFinger(3)" style="border:2px solid #42a5f5; background:#42a5f5; color:white">3</button>
+        <button class="finger-btn" onclick="setFinger(4)" style="border:2px solid #ab47bc; background:#ab47bc; color:white">4</button>
+        <button class="finger-btn" onclick="setFinger('T')" style="border:2px solid #78909c; background:#78909c; color:white">T</button>
+        <button class="finger-btn" onclick="setFinger('O')" style="border:2px solid #5d4037; background:white; color:#5d4037">O</button>
+        <button class="finger-btn" onclick="setFinger('X')" style="border:2px solid #fff; background:#3e2723; color:white">X</button>
+        <button class="finger-btn" onclick="setFinger(null)" style="border:2px solid #bcaaa4; background:#efebe9; color:#5d4037; font-size:18px">X</button>
+      </div>
+      <p id="currentFingerLabel" style="text-align:center; color:#8d6e63; font-size:13px; margin-bottom:12px;">當前選擇：食指 (1) 點擊指板放置</p>
+
+      <div class="storage-controls">
+        <button onclick="exportData()">📥 匯出 JSON</button>
+        <button onclick="importData()">📤 匯入 JSON</button>
+        <button class="danger" onclick="clearAllStorage()">🗑️ 清空全部資料</button>
+      </div>
+
+      <div class="saved-panel">
+        <h3>已儲存的指法</h3>
+        <div id="savedChords"><span style="color:#bcaaa4; font-size:14px">尚無儲存的指法...</span></div>
+      </div>
+    </div>
+
+    <div class="right-panel" id="rightPanel">
+      <h3>指法詳情</h3>
+      <div class="empty-state" id="rightEmpty">點擊左側已儲存的指法卡片<br>即可在此編輯名稱與備忘</div>
+      <div id="rightContent" style="display:none;">
+        <div class="detail-label">指法名稱：</div>
+        <input type="text" class="detail-input" id="detailName" placeholder="輸入指法名稱..." />
+        <div class="detail-time" id="detailTime"></div>
+        <div class="detail-label">備忘 / 說明：</div>
+        <textarea id="detailMemo" placeholder="在此輸入備忘..."></textarea>
+        <button class="save-btn" id="saveDetailBtn" onclick="saveDetail()">儲存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STRINGS = 6, FRETS = 24;
+    const STRING_NAMES = ['E','B','G','D','A','E'];
+    const STRING_BASE_NOTES = [4, 11, 7, 2, 9, 4];
+    const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const FINGER_COLORS = {1:'#ff7043',2:'#66bb6a',3:'#42a5f5',4:'#ab47bc','T':'#78909c','O':'#fff','X':'#3e2723'};
+    const FINGER_LABELS = {1:'食指',2:'中指',3:'無名指',4:'小指','T':'拇指','O':'空弦','X':'悶弦'};
+    const STORAGE_KEY = 'guitar_chords_data';
+
+    // 7 note colors for C-D-E-F-G-A-B toggle buttons
+    const NOTE_COLORS = {
+      'C': '#e53935',   // red
+      'D': '#fb8c00',   // orange
+      'E': '#fdd835',   // yellow
+      'F': '#43a047',   // green
+      'G': '#1e88e5',   // blue
+      'A': '#8e24aa',   // purple
+      'B': '#00897b'    // teal
+    };
+
+    const PRESET_CHORDS = {
+      'C': {0:{fret:0,finger:'O'},1:{fret:1,finger:1},2:{fret:0,finger:'O'},3:{fret:2,finger:2},4:{fret:3,finger:3},5:{fret:0,finger:'X'}},
+      'G': {0:{fret:3,finger:3},1:{fret:0,finger:'O'},2:{fret:0,finger:'O'},3:{fret:0,finger:'O'},4:{fret:2,finger:2},5:{fret:3,finger:3}},
+      'D': {0:{fret:2,finger:2},1:{fret:3,finger:3},2:{fret:2,finger:1},3:{fret:0,finger:'O'},4:{fret:0,finger:'X'},5:{fret:0,finger:'X'}},
+      'A': {0:{fret:0,finger:'O'},1:{fret:2,finger:2},2:{fret:2,finger:3},3:{fret:2,finger:1},4:{fret:0,finger:'O'},5:{fret:0,finger:'X'}},
+      'E': {0:{fret:0,finger:'O'},1:{fret:0,finger:'O'},2:{fret:1,finger:1},3:{fret:2,finger:2},4:{fret:2,finger:3},5:{fret:0,finger:'O'}},
+      'F': {0:{fret:1,finger:1},1:{fret:1,finger:1},2:{fret:2,finger:2},3:{fret:3,finger:3},4:{fret:0,finger:'X'},5:{fret:1,finger:1}},
+      'Am': {0:{fret:0,finger:'O'},1:{fret:1,finger:1},2:{fret:2,finger:2},3:{fret:2,finger:3},4:{fret:0,finger:'O'},5:{fret:0,finger:'X'}},
+      'Em': {0:{fret:0,finger:'O'},1:{fret:0,finger:'O'},2:{fret:0,finger:'O'},3:{fret:2,finger:2},4:{fret:2,finger:3},5:{fret:0,finger:'O'}},
+      'Dm': {0:{fret:1,finger:1},1:{fret:3,finger:3},2:{fret:2,finger:2},3:{fret:0,finger:'O'},4:{fret:0,finger:'X'},5:{fret:0,finger:'X'}},
+      'G7': {0:{fret:1,finger:1},1:{fret:0,finger:'O'},2:{fret:0,finger:'O'},3:{fret:0,finger:'O'},4:{fret:2,finger:2},5:{fret:3,finger:3}},
+      'C7': {0:{fret:0,finger:'O'},1:{fret:1,finger:1},2:{fret:3,finger:3},3:{fret:2,finger:2},4:{fret:3,finger:4},5:{fret:0,finger:'X'}},
+      'A7': {0:{fret:0,finger:'O'},1:{fret:2,finger:2},2:{fret:0,finger:'O'},3:{fret:2,finger:1},4:{fret:0,finger:'O'},5:{fret:0,finger:'X'}},
+      'Bm': {0:{fret:2,finger:1},1:{fret:3,finger:2},2:{fret:4,finger:4},3:{fret:4,finger:3},4:{fret:0,finger:'X'},5:{fret:2,finger:1}},
+      'B7': {0:{fret:2,finger:1},1:{fret:0,finger:'O'},2:{fret:2,finger:2},3:{fret:1,finger:1},4:{fret:2,finger:3},5:{fret:0,finger:'X'}},
+      'Fmaj7': {0:{fret:0,finger:'O'},1:{fret:1,finger:1},2:{fret:2,finger:2},3:{fret:3,finger:3},4:{fret:0,finger:'X'},5:{fret:1,finger:1}},
+      'Cmaj7': {0:{fret:0,finger:'O'},1:{fret:0,finger:'O'},2:{fret:0,finger:'O'},3:{fret:2,finger:2},4:{fret:3,finger:3},5:{fret:0,finger:'X'}}
+    };
+
+    let currentFinger = 1;
+    let boardState = [];
+    let savedChords = [];
+    let selectedChordIdx = -1;
+    let audioCtx = null;
+    let sameNoteActive = false;
+    let activeNoteToggles = new Set();
+    const W = 1100, H = 280;
+
+    // ==================== localStorage 持久儲存 ====================
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedChords));
+      } catch (e) {
+        console.error('儲存失敗:', e);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+          savedChords = JSON.parse(data);
+          renderSaved();
+        }
+      } catch (e) {
+        console.error('讀取失敗:', e);
+        savedChords = [];
+      }
+    }
+
+    function exportData() {
+      const dataStr = JSON.stringify(savedChords, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'guitar-chords-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (Array.isArray(data)) {
+              savedChords = data;
+              saveToStorage();
+              renderSaved();
+              alert('匯入成功！共 ' + data.length + ' 筆指法');
+            } else {
+              alert('檔案格式不正確');
+            }
+          } catch (err) {
+            alert('匯入失敗：' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function clearAllStorage() {
+      if (savedChords.length === 0) {
+        alert('目前沒有儲存的資料');
+        return;
+      }
+      if (confirm('確定要清空所有儲存的指法資料嗎？此動作無法復原！')) {
+        savedChords = [];
+        selectedChordIdx = -1;
+        localStorage.removeItem(STORAGE_KEY);
+        renderSaved();
+        document.getElementById('rightEmpty').style.display = 'block';
+        document.getElementById('rightContent').style.display = 'none';
+      }
+    }
+
+    // ==================== Audio ====================
+
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function getNoteFreq(midiNote) {
+      return 440 * Math.pow(2, (midiNote - 69) / 12);
+    }
+
+    function playTone(freq, duration, delay) {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + duration);
+    }
+
+    function getNoteAt(stringIdx, fret) {
+      return (STRING_BASE_NOTES[stringIdx] + fret) % 12;
+    }
+
+    function getNoteName(stringIdx, fret) {
+      return NOTE_NAMES[getNoteAt(stringIdx, fret)];
+    }
+
+    function getMidiNote(stringIdx, fret) {
+      const baseMidi = [64, 59, 55, 50, 45, 40][stringIdx];
+      return baseMidi + fret;
+    }
+
+    function playNotesSequential() {
+      if (boardState.length === 0) return;
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') ctx.resume();
+      boardState.forEach(function(item, i) {
+        const freq = getNoteFreq(getMidiNote(item.string, item.fret));
+        playTone(freq, 0.6, i * 0.4);
+      });
+    }
+
+    function playNotesTogether() {
+      if (boardState.length === 0) return;
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') ctx.resume();
+      boardState.forEach(function(item) {
+        const freq = getNoteFreq(getMidiNote(item.string, item.fret));
+        playTone(freq, 1.5, 0);
+      });
+    }
+
+    function highlightSameNotes() {
+      const layer = document.getElementById('highlightLayer');
+
+      if (sameNoteActive) {
+        layer.innerHTML = '';
+        sameNoteActive = false;
+        return;
+      }
+
+      layer.innerHTML = '';
+      if (boardState.length === 0) return;
+
+      const nutW = 40;
+      const fretSp = (W - nutW) / FRETS;
+      const strSp = H / (STRINGS + 1);
+
+      boardState.forEach(function(item) {
+        const targetNote = getNoteAt(item.string, item.fret);
+        const triggerColor = FINGER_COLORS[item.finger] || '#fff';
+
+        for (let s = 0; s < STRINGS; s++) {
+          for (let f = 0; f <= FRETS; f++) {
+            if (s === item.string && f === item.fret) continue;
+            if (getNoteAt(s, f) === targetNote) {
+              const y = (s + 1) * strSp;
+              const x = f === 0 ? nutW / 2 : nutW + f * fretSp - fretSp / 2;
+              const dot = document.createElement('div');
+              dot.style.cssText = 'position:absolute; left:' + (x - 10) + 'px; top:' + (y - 10) + 'px; width:20px; height:20px; background:' + triggerColor + '; border-radius:50%; border:2px solid rgba(255,255,255,0.7); z-index:14; opacity:0.7;';
+              layer.appendChild(dot);
+            }
+          }
+        }
+      });
+
+      sameNoteActive = true;
+    }
+
+    function initNoteToggleButtons() {
+      const row = document.getElementById('noteToggleRow');
+      const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+      notes.forEach(function(note) {
+        const btn = document.createElement('button');
+        btn.className = 'note-toggle-btn';
+        btn.textContent = note;
+        btn.style.color = NOTE_COLORS[note];
+        btn.dataset.note = note;
+        btn.onclick = function() { toggleNote(note, btn); };
+        row.appendChild(btn);
+      });
+    }
+
+    function toggleNote(note, btn) {
+      if (activeNoteToggles.has(note)) {
+        activeNoteToggles.delete(note);
+        btn.classList.remove('active');
+        btn.style.borderColor = '#d7ccc8';
+        btn.style.background = '#fff';
+      } else {
+        activeNoteToggles.add(note);
+        btn.classList.add('active');
+        btn.style.borderColor = NOTE_COLORS[note];
+        btn.style.background = NOTE_COLORS[note] + '20';
+      }
+      renderNoteLabels();
+    }
+
+    function renderNoteLabels() {
+      const layer = document.getElementById('noteLabelsLayer');
+      layer.innerHTML = '';
+
+      if (activeNoteToggles.size === 0) return;
+
+      const nutW = 40;
+      const fretSp = (W - nutW) / FRETS;
+      const strSp = H / (STRINGS + 1);
+
+      for (let s = 0; s < STRINGS; s++) {
+        for (let f = 0; f <= FRETS; f++) {
+          const fullNoteName = getNoteName(s, f);
+          if (activeNoteToggles.has(fullNoteName)) {
+            const x = f === 0 ? nutW / 2 : nutW + f * fretSp - fretSp / 2;
+            const y = (s + 1) * strSp;
+            const dot = document.createElement('div');
+            const color = NOTE_COLORS[fullNoteName];
+            dot.style.cssText = 'position:absolute; left:' + (x - 12) + 'px; top:' + (y - 12) + 'px; width:24px; height:24px; background:rgba(255,255,255,0.35); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; color:' + color + '; z-index:8; border:1px solid rgba(255,255,255,0.3);';
+            dot.textContent = fullNoteName;
+            layer.appendChild(dot);
+          }
+        }
+      }
+    }
+
+    function initBoard() {
+      const fretsLayer = document.getElementById('fretsLayer');
+      const stringsLayer = document.getElementById('stringsLayer');
+      const inlaysLayer = document.getElementById('inlaysLayer');
+      const noteLabelsLayer = document.getElementById('noteLabelsLayer');
+      const clickLayer = document.getElementById('clickLayer');
+      [fretsLayer, stringsLayer, inlaysLayer, noteLabelsLayer, clickLayer].forEach(function(el) { el.innerHTML = ''; });
+
+      const nutW = 40;
+      const fretSp = (W - nutW) / FRETS;
+      const strSp = H / (STRINGS + 1);
+
+      const nut = document.createElement('div');
+      nut.style.cssText = 'position:absolute; left:0; top:0; width:' + nutW + 'px; height:' + H + 'px; background:#d7ccc8; border-right:4px solid #a1887f; z-index:5;';
+      fretsLayer.appendChild(nut);
+
+      for (let f = 1; f <= FRETS; f++) {
+        const x = nutW + f * fretSp;
+        const fret = document.createElement('div');
+        fret.style.cssText = 'position:absolute; left:' + x + 'px; top:0; width:3px; height:' + H + 'px; background:#a1887f; z-index:4;';
+        fretsLayer.appendChild(fret);
+
+        const label = document.createElement('div');
+        label.textContent = f;
+        label.style.cssText = 'position:absolute; left:' + (x - fretSp + 2) + 'px; top:' + (H - 20) + 'px; width:' + (fretSp - 4) + 'px; text-align:center; font-size:10px; color:#d7ccc8; z-index:6; font-family:monospace;';
+        fretsLayer.appendChild(label);
+      }
+
+      for (let s = 0; s < STRINGS; s++) {
+        const y = (s + 1) * strSp;
+        const th = [1, 1.5, 2, 2.5, 3, 3.5][s];
+
+        const stringLine = document.createElement('div');
+        stringLine.id = 'string-line-' + s;
+        stringLine.style.cssText = 'position:absolute; left:0; top:' + (y - th/2) + 'px; width:' + W + 'px; height:' + th + 'px; background:#e0e0e0; z-index:3; box-shadow:0 1px 2px rgba(0,0,0,0.3); transition:all 0.15s ease;';
+        stringsLayer.appendChild(stringLine);
+
+        const nameLabel = document.createElement('div');
+        nameLabel.textContent = STRING_NAMES[s];
+        nameLabel.style.cssText = 'position:absolute; left:8px; top:' + (y - 10) + 'px; font-size:12px; color:#fff; font-weight:bold; z-index:7;';
+        stringsLayer.appendChild(nameLabel);
+      }
+
+      const inlayFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+      inlayFrets.forEach(function(f) {
+        if (f > FRETS) return;
+        const x = nutW + f * fretSp - fretSp / 2;
+        if (f === 12 || f === 24) {
+          [H/3, 2*H/3].forEach(function(y) {
+            const dot = document.createElement('div');
+            dot.style.cssText = 'position:absolute; left:' + (x-6) + 'px; top:' + (y-6) + 'px; width:12px; height:12px; background:#5d4037; border-radius:50%; opacity:0.5; z-index:2;';
+            inlaysLayer.appendChild(dot);
+          });
+        } else {
+          const dot = document.createElement('div');
+          dot.style.cssText = 'position:absolute; left:' + (x-6) + 'px; top:' + (H/2-6) + 'px; width:12px; height:12px; background:#5d4037; border-radius:50%; opacity:0.5; z-index:2;';
+          inlaysLayer.appendChild(dot);
+        }
+      });
+
+      for (let s = 0; s < STRINGS; s++) {
+        for (let f = 0; f <= FRETS; f++) {
+          const cell = document.createElement('div');
+          const x = f === 0 ? 0 : nutW + (f - 1) * fretSp;
+          const w = f === 0 ? nutW : fretSp;
+          const y = s * strSp + strSp / 2 - strSp / 2;
+          const h = strSp;
+
+          cell.style.cssText = 'position:absolute; left:' + x + 'px; top:' + y + 'px; width:' + w + 'px; height:' + h + 'px; cursor:pointer; z-index:10;';
+          cell.dataset.string = s;
+          cell.dataset.fret = f;
+          cell.onclick = (function(si, fi) { return function() { togglePosition(si, fi); }; })(s, f);
+
+          cell.onmouseenter = (function(si) { return function() {
+            const line = document.getElementById('string-line-' + si);
+            if (line) {
+              line.style.background = '#fff9c4';
+              line.style.boxShadow = '0 0 8px 2px rgba(255,249,196,0.6), 0 1px 2px rgba(0,0,0,0.3)';
+              line.style.height = '4px';
+              line.style.top = ((si + 1) * strSp - 2) + 'px';
+            }
+          }; })(s);
+          cell.onmouseleave = (function(si) { return function() {
+            const line = document.getElementById('string-line-' + si);
+            const th = [1, 1.5, 2, 2.5, 3, 3.5][si];
+            if (line) {
+              line.style.background = '#e0e0e0';
+              line.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)';
+              line.style.height = th + 'px';
+              line.style.top = ((si + 1) * strSp - th/2) + 'px';
+            }
+          }; })(s);
+
+          clickLayer.appendChild(cell);
+        }
+      }
+      renderFingers();
+      renderNoteLabels();
+    }
+
+    function togglePosition(s, f) {
+      let existingIdx = -1;
+      for (let i = 0; i < boardState.length; i++) {
+        if (boardState[i].string === s && boardState[i].fret === f) {
+          existingIdx = i;
+          break;
+        }
+      }
+      if (existingIdx >= 0) {
+        if (boardState[existingIdx].finger === currentFinger) {
+          boardState.splice(existingIdx, 1);
+        } else {
+          boardState[existingIdx].finger = currentFinger;
+        }
+      } else {
+        boardState.push({ string: s, fret: f, finger: currentFinger });
+      }
+      renderFingers();
+    }
+
+    function renderFingers() {
+      const layer = document.getElementById('fingersLayer');
+      layer.innerHTML = '';
+      const nutW = 40, fretSp = (W - nutW) / FRETS, strSp = H / (STRINGS + 1);
+
+      for (let i = 0; i < boardState.length; i++) {
+        const item = boardState[i];
+        const s = item.string;
+        const f = item.fret;
+        const finger = item.finger;
+        const y = (s + 1) * strSp;
+        const x = f === 0 ? nutW / 2 : nutW + f * fretSp - fretSp / 2;
+        const color = FINGER_COLORS[finger] || '#fff';
+        const txt = (finger === 'O' || finger === 1 || finger === 2 || finger === 3) ? '#5d4037' : '#fff';
+        const dot = document.createElement('div');
+        dot.style.cssText = 'position:absolute; left:' + (x-14) + 'px; top:' + (y-14) + 'px; width:28px; height:28px; background:' + color + '; border-radius:50%; border:2px solid #fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:' + txt + '; z-index:15; box-shadow:0 2px 6px rgba(0,0,0,0.4);';
+        dot.textContent = finger;
+        layer.appendChild(dot);
+      }
+    }
+
+    function setFinger(f) {
+      currentFinger = f;
+      const lbl = document.getElementById('currentFingerLabel');
+      if (f === null) {
+        lbl.textContent = '當前選擇：擦除模式 點擊指板移除標記';
+      } else {
+        lbl.textContent = '當前選擇：' + FINGER_LABELS[f] + ' (' + f + ') 點擊指板放置';
+      }
+      const buttons = document.querySelectorAll('.finger-btn');
+      buttons.forEach(function(b) { b.style.transform = 'scale(1)'; b.style.boxShadow = 'none'; });
+      let active = null;
+      buttons.forEach(function(b) {
+        if (f === null) { if (b.textContent === 'X') active = b; }
+        else { if (b.textContent === String(f)) active = b; }
+      });
+      if (active) { active.style.transform = 'scale(1.15)'; active.style.boxShadow = '0 0 0 3px rgba(141,110,99,0.3)'; }
+    }
+
+    function clearBoard() {
+      boardState = [];
+      document.getElementById('chordName').value = '';
+      document.getElementById('chordSelect').value = '';
+      sameNoteActive = false;
+      document.getElementById('highlightLayer').innerHTML = '';
+      renderFingers();
+    }
+
+    function loadPreset() {
+      const name = document.getElementById('chordSelect').value;
+      if (!name) return;
+      boardState = [];
+      const preset = PRESET_CHORDS[name];
+      for (const s in preset) {
+        const d = preset[s];
+        boardState.push({ string: parseInt(s), fret: d.fret, finger: d.finger });
+      }
+      document.getElementById('chordName').value = name;
+      renderFingers();
+    }
+
+    document.getElementById('chordSelect').addEventListener('change', loadPreset);
+
+    function saveChord() {
+      const name = document.getElementById('chordName').value.trim();
+      if (!name) { alert('請輸入和弦名稱！'); return; }
+      if (boardState.length === 0) { alert('指板上沒有標記任何指法！'); return; }
+      const memo = prompt('請輸入此指法的說明或備忘（可留空）：', '');
+      const stateCopy = [];
+      for (let i = 0; i < boardState.length; i++) {
+        stateCopy.push({ string: boardState[i].string, fret: boardState[i].fret, finger: boardState[i].finger });
+      }
+      savedChords.push({ name: name, state: stateCopy, memo: memo || '', timestamp: new Date().toLocaleString('zh-TW') });
+      saveToStorage(); // 儲存到 localStorage
+      renderSaved();
+      const btn = document.querySelector('button[onclick="saveChord()"]');
+      const orig = btn.textContent; btn.textContent = '已儲存'; setTimeout(function() { btn.textContent = orig; }, 1200);
+    }
+
+    function selectChord(idx) {
+      selectedChordIdx = idx;
+      const chord = savedChords[idx];
+
+      boardState = [];
+      for (let i = 0; i < chord.state.length; i++) {
+        boardState.push({ string: chord.state[i].string, fret: chord.state[i].fret, finger: chord.state[i].finger });
+      }
+      document.getElementById('chordName').value = chord.name;
+      renderFingers();
+
+      document.getElementById('rightEmpty').style.display = 'none';
+      document.getElementById('rightContent').style.display = 'block';
+      document.getElementById('detailName').value = chord.name;
+      document.getElementById('detailTime').textContent = chord.timestamp;
+      document.getElementById('detailMemo').value = chord.memo || '';
+
+      const cards = document.querySelectorAll('.chord-card');
+      cards.forEach(function(c) { c.classList.remove('active'); });
+      if (cards[idx]) cards[idx].classList.add('active');
+    }
+
+    function saveDetail() {
+      if (selectedChordIdx < 0) return;
+      const newName = document.getElementById('detailName').value.trim();
+      if (!newName) { alert('指法名稱不能為空！'); return; }
+      savedChords[selectedChordIdx].name = newName;
+      savedChords[selectedChordIdx].memo = document.getElementById('detailMemo').value;
+      saveToStorage(); // 儲存到 localStorage
+      renderSaved();
+
+      const btn = document.getElementById('saveDetailBtn');
+      btn.textContent = '已儲存';
+      btn.classList.add('saved');
+      setTimeout(function() {
+        btn.textContent = '儲存修改';
+        btn.classList.remove('saved');
+      }, 1200);
+    }
+
+    function renderSaved() {
+      const c = document.getElementById('savedChords');
+      if (savedChords.length === 0) {
+        c.innerHTML = '<span style="color:#bcaaa4; font-size:14px">尚無儲存的指法...</span>';
+        document.getElementById('rightEmpty').style.display = 'block';
+        document.getElementById('rightContent').style.display = 'none';
+        selectedChordIdx = -1;
+        return;
+      }
+      c.innerHTML = '';
+      savedChords.forEach(function(chord, idx) {
+        const card = document.createElement('div');
+        card.className = 'chord-card';
+        if (idx === selectedChordIdx) card.classList.add('active');
+        card.onclick = function() { selectChord(idx); };
+
+        const header = document.createElement('div');
+        header.className = 'chord-header';
+        const left = document.createElement('div');
+        left.className = 'chord-header-left';
+        left.innerHTML = '<span class="chord-name">' + chord.name + '</span><span class="chord-time">' + chord.timestamp + '</span>';
+        const del = document.createElement('button');
+        del.className = 'chord-del'; del.textContent = 'X';
+        del.onclick = function(e) {
+          e.stopPropagation();
+          savedChords.splice(idx, 1);
+          if (selectedChordIdx === idx) {
+            selectedChordIdx = -1;
+            document.getElementById('rightEmpty').style.display = 'block';
+            document.getElementById('rightContent').style.display = 'none';
+          } else if (selectedChordIdx > idx) {
+            selectedChordIdx--;
+          }
+          saveToStorage(); // 儲存到 localStorage
+          renderSaved();
+        };
+        header.appendChild(left); header.appendChild(del);
+        card.appendChild(header);
+
+        if (chord.memo) {
+          const memoDiv = document.createElement('div');
+          memoDiv.className = 'chord-memo';
+          memoDiv.textContent = chord.memo;
+          card.appendChild(memoDiv);
+        }
+        c.appendChild(card);
+      });
+    }
+
+    // ==================== 初始化 ====================
+
+    initNoteToggleButtons();
+    initBoard();
+    setFinger(1);
+    loadFromStorage(); // 頁面載入時從 localStorage 讀取資料
+  </script>
+</body>
+</html>
