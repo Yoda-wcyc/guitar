@@ -13,7 +13,7 @@
       margin: 0;
       padding: 20px;
     }
-    .container { max-width: 1300px; margin: 0 auto; display: flex; gap: 20px; }
+    .container { max-width: 1440px; margin: 0 auto; display: flex; gap: 20px; }
     .left-panel { flex: 1; min-width: 0; }
     .right-panel {
       width: 320px;
@@ -57,21 +57,40 @@
     .toolbar {
       display: flex; gap: 10px; align-items: center;
       flex-wrap: wrap; justify-content: center;
-      margin-bottom: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      border-radius: 10px 10px 0 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .toolbar .divider {
+      width: 1px; height: 24px; background: #e8e0da;
+    }
+    /* 工具列＋指板整組吸附在頂端 */
+    .stage {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      background: #f5f0e6;
     }
     .controls {
       display: flex; gap: 8px;
       flex-wrap: wrap; justify-content: center;
     }
     select, input, button {
-      padding: 8px 14px; border-radius: 8px;
-      border: 1px solid #bcaaa4; font-size: 14px;
+      padding: 7px 13px; border-radius: 8px;
+      border: 1px solid #d7ccc8; font-size: 14px;
+      font-family: inherit;
     }
+    select, input { background: #faf8f5; color: #3e2723; }
+    select:focus, input:focus { outline: none; border-color: #8d6e63; background: #fff; }
     button {
       border: none; background: #8d6e63; color: white;
-      cursor: pointer; transition: all 0.2s;
+      cursor: pointer; transition: all 0.15s ease;
     }
     button:hover { background: #6d4c41; }
+    button:active { transform: translateY(1px); }
     .sound-controls {
       display: flex; gap: 6px;
       justify-content: center;
@@ -80,53 +99,90 @@
     .sound-controls button {
       background: #5d4037;
       font-size: 13px;
-      padding: 6px 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
     }
     .sound-controls button:hover { background: #3e2723; }
+    /* 視窗較窄時指板可橫向捲動，不再被裁切 */
+    .fretboard-scroll {
+      overflow-x: auto;
+      border-radius: 0 0 10px 10px;
+    }
     #fretboardContainer {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      margin: 0 auto 20px;
-      width: 100%;
-      max-width: 1100px;
+      position: relative;
+      margin: 0 auto;
+      width: 1100px;
       height: 230px;
       background: #3e2723;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 6px 16px rgba(62,39,35,0.35);
       overflow: hidden;
     }
-    .legend {
-      display: flex; gap: 20px; justify-content: center;
-      margin-bottom: 16px; font-size: 13px; color: #5d4037;
+    .finger-bar {
+      display: flex; gap: 6px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 14px;
     }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .legend-dot {
-      width: 16px; height: 16px; border-radius: 50%;
-      display: inline-block; border: 2px solid #fff;
+    .finger-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px 4px 5px;
+      border-radius: 999px;
+      border: 2px solid #e0d6cf;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px; color: #5d4037;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 0.15s ease;
     }
-    .finger-selector {
-      display: flex; gap: 8px; justify-content: center;
-      margin-bottom: 16px;
+    .finger-pill:hover {
+      border-color: #bcaaa4;
+      background: #faf8f5;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
     }
-    .finger-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      font-weight: bold; cursor: pointer; transition: all 0.2s;
+    .finger-pill.active {
+      border-color: #8d6e63;
+      background: #efebe9;
+      box-shadow: 0 0 0 3px rgba(141,110,99,0.2);
+      font-weight: bold;
+    }
+    .finger-pill .dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 11px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      flex-shrink: 0;
     }
     .saved-panel {
       background: #fff; border-radius: 10px; padding: 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .saved-panel h3 { margin: 0 0 12px 0; color: #5d4037; font-size: 16px; }
+    .saved-panel h3 { margin: 0; color: #5d4037; font-size: 16px; }
+    .saved-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #efebe9;
+    }
     #savedChords { display: flex; flex-direction: column; gap: 10px; }
     .chord-card {
-      background: #efebe9; padding: 12px 16px;
-      border-radius: 8px; border: 1px solid #d7ccc8;
-      cursor: pointer; transition: all 0.2s;
+      background: #faf8f5; padding: 11px 14px;
+      border-radius: 8px; border: 1px solid #ece5e0;
+      border-left: 4px solid #d7ccc8;
+      cursor: pointer; transition: all 0.15s ease;
       display: flex; flex-direction: column; gap: 6px;
     }
-    .chord-card:hover { background: #d7ccc8; }
-    .chord-card.active { border-color: #8d6e63; background: #d7ccc8; box-shadow: 0 0 0 2px #8d6e63; }
+    .chord-card:hover {
+      background: #efebe9;
+      border-left-color: #a1887f;
+      transform: translateX(2px);
+    }
+    .chord-card.active {
+      background: #efebe9;
+      border-left-color: #8d6e63;
+      box-shadow: 0 2px 6px rgba(141,110,99,0.2);
+    }
     .chord-header {
       display: flex; align-items: center; justify-content: space-between;
     }
@@ -136,9 +192,11 @@
     .chord-name { font-weight: bold; color: #5d4037; font-size: 15px; }
     .chord-time { font-size: 11px; color: #8d6e63; }
     .chord-del {
-      background: none; border: none; color: #a1887f;
-      cursor: pointer; font-size: 14px; padding: 0 4px;
+      background: none; border: none; color: #c4b0a8;
+      cursor: pointer; font-size: 13px; padding: 2px 6px;
+      border-radius: 4px; line-height: 1;
     }
+    .chord-del:hover { background: #ffebee; color: #c62828; }
     .chord-memo {
       font-size: 13px; color: #6d4c41; line-height: 1.5;
       padding-left: 4px; border-left: 2px solid #bcaaa4;
@@ -175,22 +233,43 @@
     }
     .storage-controls {
       display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 12px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .storage-controls button {
-      background: #6d4c41;
+      background: #fff;
+      color: #6d4c41;
+      border: 1px solid #d7ccc8;
       font-size: 12px;
-      padding: 5px 10px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      transition: all 0.15s ease;
     }
-    .storage-controls button:hover { background: #4e342e; }
+    .storage-controls button:hover {
+      background: #6d4c41;
+      color: #fff;
+      border-color: #6d4c41;
+    }
     .storage-controls button.danger {
-      background: #c62828;
+      background: #fff;
+      color: #c62828;
+      border-color: #f0c6c6;
     }
     .storage-controls button.danger:hover {
-      background: #b71c1c;
+      background: #c62828;
+      color: #fff;
+      border-color: #c62828;
+    }
+
+    /* 視窗放不下 指板1100 + 詳情欄320 時，詳情欄改置於下方 */
+    @media (max-width: 1500px) {
+      .container { flex-direction: column; }
+      .right-panel { width: 100%; position: static; }
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .toolbar { padding: 8px; gap: 8px; }
+      .toolbar .divider { display: none; }
     }
   </style>
 </head>
@@ -200,6 +279,7 @@
 
   <div class="container">
     <div class="left-panel">
+      <div class="stage">
       <div class="toolbar">
       <div class="controls">
         <select id="chordSelect">
@@ -226,16 +306,21 @@
         <button onclick="clearBoard()" style="background:#a1887f">清空</button>
       </div>
 
+      <div class="divider"></div>
+
       <div class="sound-controls">
-        <button onclick="playNotesSequential()">一個一個發音</button>
-        <button onclick="playNotesTogether()">一起發音</button>
-        <button onclick="highlightSameNotes()">標出相同音</button>
+        <button onclick="playNotesSequential()">🎵 逐音</button>
+        <button onclick="playNotesTogether()">🎶 齊發</button>
+        <button onclick="highlightSameNotes()">🔍 相同音</button>
       </div>
+
+      <div class="divider"></div>
 
       <!-- Note toggle buttons (C-D-E-F-G-A-B) -->
       <div class="note-toggle-row" id="noteToggleRow"></div>
       </div>
 
+      <div class="fretboard-scroll">
       <div id="fretboardContainer">
         <div style="position:absolute; inset:0; background:repeating-linear-gradient(90deg,#4e342e 0px,#3e2723 2px,#4e342e 4px); opacity:0.6;"></div>
         <div id="fretsLayer" style="position:absolute; inset:0;"></div>
@@ -246,37 +331,20 @@
         <div id="fingersLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
         <div id="highlightLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
       </div>
-
-      <div class="legend">
-        <div class="legend-item"><span class="legend-dot" style="background:#ff7043"></span> 食指 (1)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#66bb6a"></span> 中指 (2)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#42a5f5"></span> 無名指 (3)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#ab47bc"></span> 小指 (4)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#78909c"></span> 拇指 (T)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#fff; border-color:#5d4037"></span> 空弦 (O)</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#3e2723"></span> 悶弦 (X)</div>
+      </div>
       </div>
 
-      <div class="finger-selector">
-        <button class="finger-btn" onclick="setFinger(1)" style="border:2px solid #ff7043; background:#ff7043; color:white">1</button>
-        <button class="finger-btn" onclick="setFinger(2)" style="border:2px solid #66bb6a; background:#66bb6a; color:white">2</button>
-        <button class="finger-btn" onclick="setFinger(3)" style="border:2px solid #42a5f5; background:#42a5f5; color:white">3</button>
-        <button class="finger-btn" onclick="setFinger(4)" style="border:2px solid #ab47bc; background:#ab47bc; color:white">4</button>
-        <button class="finger-btn" onclick="setFinger('T')" style="border:2px solid #78909c; background:#78909c; color:white">T</button>
-        <button class="finger-btn" onclick="setFinger('O')" style="border:2px solid #5d4037; background:white; color:#5d4037">O</button>
-        <button class="finger-btn" onclick="setFinger('X')" style="border:2px solid #fff; background:#3e2723; color:white">X</button>
-        <button class="finger-btn" onclick="setFinger(null)" style="border:2px solid #bcaaa4; background:#efebe9; color:#5d4037; font-size:18px">X</button>
-      </div>
-      <p id="currentFingerLabel" style="text-align:center; color:#8d6e63; font-size:13px; margin-bottom:12px;">當前選擇：食指 (1) 點擊指板放置</p>
-
-      <div class="storage-controls">
-        <button onclick="exportData()">📥 匯出 JSON</button>
-        <button onclick="importData()">📤 匯入 JSON</button>
-        <button class="danger" onclick="clearAllStorage()">🗑️ 清空全部資料</button>
-      </div>
+      <div class="finger-bar" id="fingerBar"></div>
 
       <div class="saved-panel">
-        <h3>已儲存的指法</h3>
+        <div class="saved-head">
+          <h3>已儲存的指法</h3>
+          <div class="storage-controls">
+            <button onclick="exportData()">📥 匯出</button>
+            <button onclick="importData()">📤 匯入</button>
+            <button class="danger" onclick="clearAllStorage()">🗑️ 清空全部</button>
+          </div>
+        </div>
         <div id="savedChords"><span style="color:#bcaaa4; font-size:14px">尚無儲存的指法...</span></div>
       </div>
     </div>
@@ -713,22 +781,49 @@
       }
     }
 
+    // 指選膠囊：圖例（顏色＋名稱）與選取鈕合而為一
+    const FINGER_PICKER = [
+      { key: 1,      mark: '1', label: '食指',   bg: '#ff7043', fg: '#fff' },
+      { key: 2,      mark: '2', label: '中指',   bg: '#66bb6a', fg: '#fff' },
+      { key: 3,      mark: '3', label: '無名指', bg: '#42a5f5', fg: '#fff' },
+      { key: 4,      mark: '4', label: '小指',   bg: '#ab47bc', fg: '#fff' },
+      { key: 'T',    mark: 'T', label: '拇指',   bg: '#78909c', fg: '#fff' },
+      { key: 'O',    mark: 'O', label: '空弦',   bg: '#fff',    fg: '#5d4037' },
+      { key: 'X',    mark: 'X', label: '悶弦',   bg: '#3e2723', fg: '#fff' },
+      { key: null,   mark: '⌫', label: '擦除',   bg: '#efebe9', fg: '#8d6e63' }
+    ];
+
+    function initFingerBar() {
+      const bar = document.getElementById('fingerBar');
+      FINGER_PICKER.forEach(function(item) {
+        const pill = document.createElement('button');
+        pill.className = 'finger-pill';
+        pill.dataset.finger = String(item.key);
+        pill.title = item.key === null ? '擦除模式：點擊指板移除標記' : item.label + '（' + item.mark + '）';
+        pill.onclick = function() { setFinger(item.key); };
+
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = item.bg;
+        dot.style.color = item.fg;
+        if (item.key === 'O') dot.style.borderColor = '#bcaaa4';
+        dot.textContent = item.mark;
+
+        const txt = document.createElement('span');
+        txt.textContent = item.label;
+
+        pill.appendChild(dot);
+        pill.appendChild(txt);
+        bar.appendChild(pill);
+      });
+    }
+
     function setFinger(f) {
       currentFinger = f;
-      const lbl = document.getElementById('currentFingerLabel');
-      if (f === null) {
-        lbl.textContent = '當前選擇：擦除模式 點擊指板移除標記';
-      } else {
-        lbl.textContent = '當前選擇：' + FINGER_LABELS[f] + ' (' + f + ') 點擊指板放置';
-      }
-      const buttons = document.querySelectorAll('.finger-btn');
-      buttons.forEach(function(b) { b.style.transform = 'scale(1)'; b.style.boxShadow = 'none'; });
-      let active = null;
-      buttons.forEach(function(b) {
-        if (f === null) { if (b.textContent === 'X') active = b; }
-        else { if (b.textContent === String(f)) active = b; }
+      const pills = document.querySelectorAll('.finger-pill');
+      pills.forEach(function(p) {
+        p.classList.toggle('active', p.dataset.finger === String(f));
       });
-      if (active) { active.style.transform = 'scale(1.15)'; active.style.boxShadow = '0 0 0 3px rgba(141,110,99,0.3)'; }
     }
 
     function clearBoard() {
@@ -863,6 +958,7 @@
     // ==================== 初始化 ====================
 
     initNoteToggleButtons();
+    initFingerBar();
     initBoard();
     setFinger(1);
     loadFromStorage(); // 頁面載入時從 localStorage 讀取資料
