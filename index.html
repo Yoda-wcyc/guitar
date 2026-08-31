@@ -340,11 +340,13 @@
         <div class="saved-head">
           <h3>已儲存的指法</h3>
           <div class="storage-controls">
+            <button id="bindBtn" onclick="relinkDataFile()">🔗 連結資料檔</button>
             <button onclick="exportData()">📥 匯出</button>
             <button onclick="importData()">📤 匯入</button>
             <button class="danger" onclick="clearAllStorage()">🗑️ 清空全部</button>
           </div>
         </div>
+        <div id="fileStatus" style="font-size:12px; color:#8d6e63; margin:2px 0 8px;">尚未連結資料檔</div>
         <div id="savedChords"><span style="color:#bcaaa4; font-size:14px">尚無儲存的指法...</span></div>
       </div>
     </div>
@@ -411,33 +413,188 @@
     let activeNoteToggles = new Set();
     const W = 1100, H = 230;
 
-    // ==================== localStorage 持久儲存 ====================
+    // ==================== 資料儲存：資料檔為正本，localStorage 只是快取 ====================
+    // 舊版只存 localStorage，那是綁在「這台電腦的這個瀏覽器」上的，換機/清快取就沒了。
+    // 現在綁一次資料夾裡的 JSON 檔，之後每次存檔直接寫回那個檔案。
+    // 瀏覽器不支援檔案存取（file:// 直接雙擊開啟、Firefox/Safari）就自動退回純 localStorage，
+    // 行為跟舊版一樣，不會更糟。
+
+    const FS_OK = (typeof window.showSaveFilePicker === 'function');
+    const IDB_NAME = 'guitar_fs', IDB_STORE = 'handles', IDB_KEY = 'dataFile';
+    let fileHandle = null;      // 綁定的檔案代號
+    let fileLinked = false;     // 目前真的可讀寫嗎
+
+    function idbOpen() {
+      return new Promise(function(res, rej) {
+        const r = indexedDB.open(IDB_NAME, 1);
+        r.onupgradeneeded = function() { r.result.createObjectStore(IDB_STORE); };
+        r.onsuccess = function() { res(r.result); };
+        r.onerror = function() { rej(r.error); };
+      });
+    }
+
+    function idbSet(val) {
+      return idbOpen().then(function(db) {
+        return new Promise(function(res, rej) {
+          const tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).put(val, IDB_KEY);
+          tx.oncomplete = function() { res(); };
+          tx.onerror = function() { rej(tx.error); };
+        });
+      });
+    }
+
+    function idbGet() {
+      return idbOpen().then(function(db) {
+        return new Promise(function(res, rej) {
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const q = tx.objectStore(IDB_STORE).get(IDB_KEY);
+          q.onsuccess = function() { res(q.result || null); };
+          q.onerror = function() { rej(q.error); };
+        });
+      });
+    }
+
+    function sanitize(list) {
+      // 清掉舊版擦除 bug 留下的空白點
+      if (!Array.isArray(list)) return [];
+      list.forEach(function(chord) {
+        if (Array.isArray(chord.state)) {
+          chord.state = chord.state.filter(function(p) {
+            return p.finger !== null && p.finger !== undefined;
+          });
+        }
+      });
+      return list;
+    }
+
+    function setFileStatus(text, tone) {
+      const el = document.getElementById('fileStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.style.color = tone === 'ok' ? '#2e7d32' : (tone === 'warn' ? '#ef6c00' : '#8d6e63');
+    }
+
+    // ---- 寫入：localStorage 一定寫（快取），有綁檔就同時寫回檔案 ----
 
     function saveToStorage() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(savedChords));
       } catch (e) {
-        console.error('儲存失敗:', e);
+        console.error('快取儲存失敗:', e);
+      }
+      if (fileLinked && fileHandle) {
+        writeToFile().catch(function(e) {
+          console.error('寫入資料檔失敗:', e);
+          fileLinked = false;
+          setFileStatus('資料檔寫入失敗，暫時只存在瀏覽器', 'warn');
+        });
       }
     }
 
-    function loadFromStorage() {
+    function writeToFile() {
+      return fileHandle.createWritable().then(function(w) {
+        return w.write(JSON.stringify(savedChords, null, 2)).then(function() {
+          return w.close();
+        });
+      }).then(function() {
+        setFileStatus('已存入 ' + fileHandle.name, 'ok');
+      });
+    }
+
+    // ---- 讀取：有綁檔就以檔案為準，否則退回 localStorage ----
+
+    function loadFromCache() {
       try {
         const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-          savedChords = JSON.parse(data);
-          // 清掉舊版擦除 bug 留下的空白點
-          savedChords.forEach(function(chord) {
-            if (Array.isArray(chord.state)) {
-              chord.state = chord.state.filter(function(p) { return p.finger !== null && p.finger !== undefined; });
-            }
-          });
-          renderSaved();
-        }
+        if (data) savedChords = sanitize(JSON.parse(data));
       } catch (e) {
-        console.error('讀取失敗:', e);
+        console.error('讀取快取失敗:', e);
         savedChords = [];
       }
+      renderSaved();
+    }
+
+    function readFromFile() {
+      return fileHandle.getFile().then(function(f) { return f.text(); }).then(function(txt) {
+        const parsed = txt.trim() ? JSON.parse(txt) : [];
+        if (!Array.isArray(parsed)) throw new Error('資料檔格式不正確');
+        savedChords = sanitize(parsed);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedChords)); } catch (e) {}
+        renderSaved();
+        fileLinked = true;
+        setFileStatus('已連結 ' + fileHandle.name + '（' + savedChords.length + ' 筆）', 'ok');
+      });
+    }
+
+    // ---- 綁定／重新連結 ----
+
+    function bindDataFile() {
+      if (!FS_OK) {
+        alert('這個開啟方式不支援直接讀寫檔案。\n\n請改用線上版網址開啟，或繼續用「匯出／匯入」保存資料。');
+        return;
+      }
+      window.showSaveFilePicker({
+        suggestedName: 'guitar-chords.json',
+        types: [{ description: '指法資料', accept: { 'application/json': ['.json'] } }]
+      }).then(function(h) {
+        fileHandle = h;
+        return idbSet(h);
+      }).then(function() {
+        // 檔案已有內容就以檔案為準；空檔就把目前資料寫進去
+        return fileHandle.getFile().then(function(f) { return f.text(); }).then(function(txt) {
+          if (txt.trim()) {
+            return readFromFile().then(function() {
+              alert('已連結資料檔，並載入 ' + savedChords.length + ' 筆指法。\n以後存檔會自動寫回這個檔案。');
+            });
+          }
+          fileLinked = true;
+          return writeToFile().then(function() {
+            alert('已建立並連結資料檔。\n以後存檔會自動寫回這個檔案。');
+          });
+        });
+      }).catch(function(e) {
+        if (e && e.name === 'AbortError') return;  // 使用者自己取消
+        console.error(e);
+        alert('連結資料檔失敗：' + (e && e.message ? e.message : e));
+      });
+    }
+
+    function relinkDataFile() {
+      if (!fileHandle) return bindDataFile();
+      fileHandle.requestPermission({ mode: 'readwrite' }).then(function(p) {
+        if (p !== 'granted') { setFileStatus('未授權，資料暫存瀏覽器', 'warn'); return; }
+        return readFromFile();
+      }).catch(function(e) {
+        console.error(e);
+        setFileStatus('恢復連結失敗，資料暫存瀏覽器', 'warn');
+      });
+    }
+
+    // ---- 開頁時的載入流程 ----
+
+    function initStorage() {
+      loadFromCache();  // 先把快取畫出來，畫面不會空白
+
+      if (!FS_OK) {
+        setFileStatus('此開啟方式僅能存於瀏覽器，請用匯出備份', 'warn');
+        const b = document.getElementById('bindBtn');
+        if (b) b.style.display = 'none';
+        return;
+      }
+
+      idbGet().then(function(h) {
+        if (!h) { setFileStatus('尚未連結資料檔', ''); return; }
+        fileHandle = h;
+        return h.queryPermission({ mode: 'readwrite' }).then(function(p) {
+          if (p === 'granted') return readFromFile();
+          // 瀏覽器重開後要使用者手動點一下才能恢復授權
+          setFileStatus('點「連結資料檔」以恢復 ' + h.name, 'warn');
+        });
+      }).catch(function(e) {
+        console.error(e);
+        setFileStatus('尚未連結資料檔', '');
+      });
     }
 
     function exportData() {
@@ -490,6 +647,9 @@
         savedChords = [];
         selectedChordIdx = -1;
         localStorage.removeItem(STORAGE_KEY);
+        if (fileLinked && fileHandle) {   // 有綁檔就把檔案也清成空陣列，兩邊才一致
+          writeToFile().catch(function(e) { console.error('清空資料檔失敗:', e); });
+        }
         renderSaved();
         document.getElementById('rightEmpty').style.display = 'block';
         document.getElementById('rightContent').style.display = 'none';
@@ -971,7 +1131,7 @@
     initFingerBar();
     initBoard();
     setFinger(1);
-    loadFromStorage(); // 頁面載入時從 localStorage 讀取資料
+    initStorage(); // 開頁載入：有連結資料檔就以檔案為準，否則退回瀏覽器快取
   </script>
 </body>
 </html>
