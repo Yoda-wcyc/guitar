@@ -349,8 +349,11 @@
     .dg-err { color: #b71c1c; font-size: 13px; }
     .dg g.hit circle, .dg g.hit polygon { stroke: #fff59d; stroke-width: 4; }
     .dg-legend { font-size: 12px; color: #5d4037; margin-top: 4px; }
-    .dg-diamond { font-size: 14px; margin-right: 3px; }
+    .dg-accent { margin-right: 4px; vertical-align: -1px; }
+    .prog-bar { margin-left: 4px; font-variant-numeric: tabular-nums; }
+    .quiz-pass { font-weight: bold; color: #5d4037; }
     .quiz { border-top: 1px solid #efebe9; padding-top: 8px; margin-top: 8px; }
+    .quiz-hint { margin: 6px 0 0; }
     .quiz-body { margin-top: 8px; }
     .quiz-q { font-size: 15px; color: #3e2723; margin: 6px 0; }
     .quiz-opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
@@ -366,6 +369,9 @@
       .course-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       /* 手機：共用列照樣吸頂（練題卡時要按得到節拍器），但壓成精簡兩列：拿掉「節拍器／標籤／BPM」字樣與伴奏名稱 */
       .shared-bar { padding: 4px 6px; gap: 4px 10px; margin-bottom: 8px; font-size: 12px; }
+      /* 伴奏中多了「第 N／M 小節」：手機藏掉「現在」兩字（head.html 裡的裸文字，用字級 0 藏、子元素字級照舊），360 寬播 12 小節藍調仍壓在兩列 */
+      #progBox > span { font-size: 0; }
+      #progBox > span > * { font-size: 12px; }
       .shared-bar .sb-label, .shared-bar .sb-unit, .shared-bar .sb-pname { display: none; }
       .shared-bar .sb-group { gap: 4px; }
       .shared-bar button { padding: 4px 8px; font-size: 12px; }
@@ -373,6 +379,9 @@
       .shared-bar select { padding: 3px 2px; }
       .lamp { width: 10px; height: 10px; }
       .box, .ex { padding: 10px 12px; }
+    }
+    @media (max-width: 480px) {
+      .course-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* 360–390 寬三欄放不下「3 大調＋自然小調」，「調」會一個字掉到第二行 */
     }
   </style>
 </head>
@@ -1500,6 +1509,7 @@ window.COURSE = {
           "id": "s2-q4",
           "type": "findNote",
           "title": "找音名：5 弦 0–12 格（自然音，先練這組）",
+          "pass": 9,
           "params": {
             "strings": [
               5
@@ -1515,6 +1525,7 @@ window.COURSE = {
           "id": "s2-q1",
           "type": "findNote",
           "title": "進階：5、6 弦混合找音名（0–12 格，補充）",
+          "pass": 9,
           "params": {
             "strings": [
               6,
@@ -3490,6 +3501,7 @@ window.COURSE = {
           "id": "s4-q1",
           "type": "mcTriad",
           "title": "和弦組成音（C F G Am Dm Em）",
+          "pass": 9,
           "params": {
             "chords": [
               "C",
@@ -3781,7 +3793,7 @@ window.COURSE = {
             "chords": [
               "Am"
             ],
-            "bars": 1
+            "bars": 4
           }
         },
         {
@@ -5388,7 +5400,7 @@ window.COURSE = {
           "title": "和聲小調：4–8 格上下行",
           "steps": [
             "A 和聲小調＝A 自然小調把 G 升成 G♯：A B C D E F G♯。級數 6 7 1 2 3 4 ♯5（G♯ 唱升Sol，圖上的唱名寫 ♯Sol）。♯5＝把 5（Sol，G）升半音＝G♯。這跟藍調的 ♭3 一樣是本站 C 調首調的級數，不是從 A 數的；從 A 數，G♯ 是第 7 個音。圖上特別標出來的點（看圖下的圖例）是特色音 G♯。",
-            "位置 4–8 格，跟 tab3 的 La 型同一段。建議指法照 La 型：6、5、4 弦手放 5–8 格（一格一指：食指 5、中指 6、無名指 7、小指 8）；彈到 3 弦時整隻手往左移一格（4–7 格）；彈到 2 弦時整隻手往右移一格（5–8 格），1 弦也在這裡；6 弦 4 格 G♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格。",
+            "位置 4–8 格，跟 tab3 的 La 型同一段。建議指法照 La 型：6、5、4 弦手放 5–8 格（一格一指：食指 5、中指 6、無名指 7、小指 8）；彈到 3 弦時整隻手往左移一格（4–7 格）；彈到 2 弦時整隻手往右移一格（5–8 格），1 弦也在這裡；6 弦 4 格 G♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格；隔壁的 6 弦 5 格 A、1 弦 5 格 A 改用中指按（不要用同一根食指連按相鄰兩格，速度一快會卡），同一條弦後面的 7、8 格照舊用無名指、小指，中指跟無名指之間會撐開一格。",
             "從 6 弦最低的 G♯ 往上：6 弦 4、5、7、8 格；5 弦 5、7、8 格；4 弦 6、7 格；3 弦 4、5、7 格；2 弦 5、6 格；1 弦 4、5、7、8 格。到 1 弦最高音再原路下來，算 1 遍。",
             "招牌聲音：F→G♯ 差 3 格，叫增二度：F、G 是相鄰的字母，所以叫「二度」；比全音（2 格）多一個半音，所以叫「增」。在同一條弦上就是差 3 格，例如 2 弦 6 格 F → 2 弦 9 格 G♯（9 格在 4–8 格外面，只是拿來看距離）。這個位置有兩處（都是跨弦）：5 弦 8 格 F → 4 弦 6 格 G♯、2 弦 6 格 F → 1 弦 4 格 G♯。彈到這裡放慢一點，聽清楚。",
             "60 BPM 四分音符起，照提速規則（連續 3 次乾淨 +4 BPM，一出錯退 4）加到 80；再改八分音符，從 60 重新加到 80。",
@@ -5561,7 +5573,7 @@ window.COURSE = {
           "title": "上行旋律小調、下行自然小調",
           "steps": [
             "古典音樂常見的用法：往上走用旋律小調（F♯ G♯ 一路順上去，就是圖上的兩個特色音），往下走回到自然小調（G、F 不升）。兩張圖的 ▶：旋律小調那張只往上播、自然小調那張只往下播；▶ 會播整張圖 4–8 格的音（不只 A 到 A），練習時照下面的清單從 A 彈到 A。",
-            "上行（旋律小調，從 6 弦 5 格的 A 到 1 弦 5 格的 A）：6 弦 5、7、8 格；5 弦 5、7 格；4 弦 4、6、7 格；3 弦 4、5、7 格；2 弦 5、7 格；1 弦 4、5 格。建議指法跟 s7-e4 一樣照 La 型；4 弦 4 格 F♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格。",
+            "上行（旋律小調，從 6 弦 5 格的 A 到 1 弦 5 格的 A）：6 弦 5、7、8 格；5 弦 5、7 格；4 弦 4、6、7 格；3 弦 4、5、7 格；2 弦 5、7 格；1 弦 4、5 格。建議指法跟上一週「和聲小調：4–8 格上下行」那題一樣照 La 型；4 弦 4 格 F♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格；隔壁的 1 弦 5 格 A 改用中指按（不要用同一根食指連按相鄰兩格，速度一快會卡）。（6 弦這條路線從 5 格 A 開始，沒有 4 格，5 格照 La 型用食指；4 弦這段路線沒有 5 格，F♯ 後面接 6 格中指，不用改）",
             "下行（自然小調，1 弦 5 格的 A 不重彈，從 2 弦 8 格往下回到 6 弦 5 格的 A）：2 弦 8、6、5 格；3 弦 7、5、4 格；4 弦 7、5 格；5 弦 8、7、5 格；6 弦 8、7、5 格。",
             "上下共 29 個音（上行 15、下行 14），最後的 A 留長一點。",
             "60 BPM 八分音符起，照提速規則（連續 3 次乾淨 +4 BPM，一出錯退 4）加到 80。",
@@ -5608,8 +5620,8 @@ window.COURSE = {
           "steps": [
             "開伴奏 Am–Dm–E–Am，每個和弦 1 小節。",
             "想停下來的時候，看當下是哪個和弦：Am 小節停 A、C、E；Dm 小節停 D、F、A（這裡的 F 是自然小調的 F：5 弦 8 格、2 弦 6 格，不要彈成 F♯）；E 小節停 E、G♯、B。",
-            "E 小節的後兩拍彈 F♯、G♯（旋律小調圖上的兩個特色音），下一小節 Am 的第一拍落在 A：4 弦 4 格 F♯ → 4 弦 6 格 G♯ → 4 弦 7 格 A；或 2 弦 7 格 F♯ → 1 弦 4 格 G♯ → 1 弦 5 格 A。指法同上一題：4 弦 4 格 F♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格。",
-            "Am 小節跟上一題一樣：往上走用旋律小調（F♯、G♯），往下走回到自然小調（G、F）。Dm 小節不管往上或往下都彈自然小調的 F、G，不彈 F♯（伴奏的 Dm 和弦裡有 F，彈 F♯ 會跟它撞在一起）。E 小節不管往上或往下都彈 G♯、不彈 G（伴奏的 E 和弦裡有 G♯，彈 G 會跟它撞在一起）。",
+            "E 小節的後兩拍彈 F♯、G♯（旋律小調圖上的兩個特色音），下一小節 Am 的第一拍落在 A：4 弦 4 格 F♯ → 4 弦 6 格 G♯ → 4 弦 7 格 A；或 2 弦 7 格 F♯ → 1 弦 4 格 G♯ → 1 弦 5 格 A。指法同上一題：4 弦 4 格 F♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格；隔壁的 1 弦 5 格 A 改用中指按（不要用同一根食指連按相鄰兩格，速度一快會卡）。",
+            "每個小節用哪些音：\nAm 小節跟上一題一樣：往上走用旋律小調（F♯、G♯），往下走回到自然小調（G、F）。\nDm 小節不管往上或往下都彈自然小調的 F、G，不彈 F♯（伴奏的 Dm 和弦裡有 F，彈 F♯ 會跟它撞在一起）。\nE 小節不管往上或往下都彈 F♯、G♯，不彈 F、G：伴奏的 E 和弦裡有 G♯，彈 G 會跟它撞在一起；往上 F♯ G♯ A、往下 A G♯ F♯ E 都一步一步走，所以 E 小節的 F 一律換成 F♯。\n（為什麼上一週「伴奏 Am–Dm–E–Am：E 小節彈到 G♯」那題的 E 小節可以彈 F：那題用和聲小調，F 到 G♯ 差 3 格，聽起來會跳一下。這一跳就是和聲小調的味道；這一題用旋律小調，改成 F♯，把這一跳補平。）\n對照兩張圖：旋律小調那張是 Am 小節往上、E 小節用的；自然小調那張是 Am 小節往下、Dm 小節用的。",
             "先 60 BPM，照提速規則（連續 3 次乾淨 +4 BPM，一出錯退 4）加到 70。",
             "過關：70 BPM 連續 4 輪不停，每輪都用 F♯ G♯ A 走回 Am 的第一拍，Dm 小節彈 F、不彈 F♯。"
           ],
@@ -5659,7 +5671,8 @@ window.COURSE = {
         {
           "id": "s7-q1",
           "type": "findDegree",
-          "title": "找藍調音：A 藍調音階的 E♭（C 調首調的級數 ♭3，唱降Mi；從 A 算是 ♭5）在各弦哪裡。課文只教了 5–8 格的位置，其他位置用 tab2 的八度形狀推（例如 3 弦 8 格的 E♭＝1 弦 11 格；同一條弦往上 12 格也是同一個音）",
+          "title": "找藍調音：A 藍調音階的 E♭（C 調首調的級數 ♭3，唱降Mi；從 A 算是 ♭5）在各弦哪裡。",
+          "hint": "課文只教了 5–8 格的位置。其他位置可以從空弦（6 弦到 1 弦：E A D G B E）往上數，每往上一格升半音（七個音名裡只有 E→F、B→C 中間沒有升降音，各只差 1 格；其他相鄰的兩個音名中間都夾一個升降音，例如 A→A♯→B）。像是 4 弦空弦是 D，往上 1 格是 D♯，也就是 E♭（同一格的兩種寫法）＝4 弦 1 格；同一條弦往上 12 格也是同一個音。學過 tab2 的八度形狀會更快，沒學過也能做。",
           "params": {
             "keys": [
               "A"
@@ -5685,7 +5698,8 @@ window.COURSE = {
         {
           "id": "s7-q2",
           "type": "findDegree",
-          "title": "找升高的音：A 和聲小調的 G♯（♯5），A 旋律小調的 F♯（♯4）、G♯（♯5），在各弦哪裡。課文只教了 4–8 格的位置，其他位置用 tab2 的八度形狀推（例如 4 弦 6 格的 G♯＝2 弦 9 格；同一條弦往上 12 格也是同一個音）",
+          "title": "找升高的音：A 和聲小調的 G♯（♯5），A 旋律小調的 F♯（♯4）、G♯（♯5），在各弦哪裡。",
+          "hint": "課文只教了 4–8 格的位置。其他位置可以從空弦（6 弦到 1 弦：E A D G B E）往上數，每往上一格升半音（七個音名裡只有 E→F、B→C 中間沒有升降音，各只差 1 格；其他相鄰的兩個音名中間都夾一個升降音，例如 A→A♯→B）。像是 3 弦空弦是 G，往上 1 格就是 G♯＝3 弦 1 格；1 弦空弦是 E，往上 E→F→F♯ 數 2 格就是 F♯＝1 弦 2 格；同一條弦往上 12 格也是同一個音。學過 tab2 的八度形狀會更快，沒學過也能做。",
           "params": {
             "keys": [
               "A"
@@ -6869,13 +6883,13 @@ window.COURSE = {
         eq(byScale('bluesMinor', [5, 8], [6]), ['6/A/La', '1/C/Do', '2/D/Re', '♭3/E♭/♭Mi/◆', '3/E/Mi', '5/G/Sol'], 'A 藍調音階：♭3＝E♭（不是 D♯）＝特色音');
         eq(byScale('harmonicMinor', [4, 8], [11]), ['6/A/La', '7/B/Si', '1/C/Do', '2/D/Re', '3/E/Mi', '4/F/Fa', '♯5/G♯/♯Sol/◆'], 'A 和聲小調：♯5＝G♯＝特色音');
         eq(byScale('melodicMinor', [4, 8], [9, 11]), ['6/A/La', '7/B/Si', '1/C/Do', '2/D/Re', '3/E/Mi', '♯4/F♯/♯Fa/◆', '♯5/G♯/♯Sol/◆'], 'A 旋律小調：♯4＝F♯、♯5＝G♯＝特色音');
-        // accent：位置、畫法（菱形、紫色）跟根音／和弦音／橘點／測驗對錯都不同色
+        // accent：位置、畫法（橫向六角形、紫色）跟根音／和弦音／橘點／測驗對錯都不同色
         const blues = T.compute({ kind: 'scale', key: 'A', scale: 'bluesMinor', frets: [5, 8], accent: [6] });
         const accAt = blues.filter(function (x) { return roleOf(x) === 'accent'; }).map(function (x) { return x.s + '弦' + x.f; });
         const fills = ['root', 'chord', 'scale', 'ok', 'ng'].map(function (k) { return COLORS[k].fill.toLowerCase(); }).concat(['#ff7043', '#ffb300']);
-        check(JSON.stringify(accAt) === '["5弦6","3弦8"]' && COLORS.accent.shape === 'diamond' && fills.indexOf(COLORS.accent.fill.toLowerCase()) < 0 &&
+        check(JSON.stringify(accAt) === '["5弦6","3弦8"]' && COLORS.accent.shape === 'hex' && fills.indexOf(COLORS.accent.fill.toLowerCase()) < 0 &&
           roleOf(blues.filter(function (x) { return x.s === 6 && x.f === 5; })[0]) === 'root',
-          'accent：藍調音在 5 弦 6 格、3 弦 8 格，畫成菱形、顏色不跟紅／黃／橘／綠撞（實得 ' + accAt.join('、') + '）');
+          'accent：藍調音在 5 弦 6 格、3 弦 8 格，畫成橫向六角形、顏色不跟紅／黃／橘／綠撞（實得 ' + accAt.join('、') + '）');
         // allowedFrets：同音名但不是指定格要判錯；正解只有指定格
         const qa = QUIZ.findDegree({ keys: ['C'], scale: 'major', degrees: [1], strings: [5], frets: [0, 15], allowedFrets: { C: [3] } });
         check(JSON.stringify(qa.answers) === '[3]' && JSON.stringify(qa.pitchFrets) === '[3,15]' && judgeBoard(qa, 3) === 'ok' && judgeBoard(qa, 15) === 'samePitch' && judgeBoard(qa, 5) === 'wrong',
@@ -7002,16 +7016,22 @@ window.COURSE = {
         const bad = chords.filter(function (c) { return !PRESET_CHORDS[c]; });
         if (bad.length) { console.error('[伴奏] tab1 預設和弦裡沒有：' + bad.join('、')); return false; }
         this.chords = chords.slice(); this.bars = Math.max(1, Math.floor(bars) || 1); this.owner = owner || null;
+        const M = this.chords.length * this.bars;   // 這個進行一輪幾小節（12 小節藍調＝12、四個和弦各 1 小節＝4）
         let count = 0;
         const self = this;
-        this.user = { align: 'bar', onTick: function (rel, time, t) {
+        const me = this.user = { align: 'bar', onTick: function (rel, time, t) {
           const per = 2 * Metro.beats;
           if (t % per) return;
-          const name = self.chords[Math.floor(count / self.bars) % self.chords.length];
+          const bar = count % M, name = self.chords[Math.floor(bar / self.bars)];
           count++;
           const dur = per * 30 / Metro.bpm;
           chordMidis(name).forEach(function (m) { playTone(getNoteFreq(m), dur, 0, 0.1, time); });   // 每小節第一拍齊發
-          Clock.at(time, function () { const el = document.getElementById('progNow'); if (el && self.user) el.textContent = name; });
+          // 小節數跟和弦名用排這一小節聲音的同一個 time 顯示；停掉或重開後，舊的這一輪不准再寫
+          Clock.at(time, function () {
+            if (self.user !== me) return;
+            document.getElementById('progNow').textContent = name;
+            document.getElementById('progBar').textContent = '第 ' + (bar + 1) + '／' + M + ' 小節';
+          });
         } };
         Clock.add(this.user);
         document.getElementById('progName').textContent = progText(this.chords) + (this.bars > 1 ? '（每和弦 ' + this.bars + ' 小節）' : '');
@@ -7026,6 +7046,8 @@ window.COURSE = {
         this.user = null; this.owner = null;
         const box = document.getElementById('progBox');
         if (box) box.hidden = true;
+        const barEl = document.getElementById('progBar');
+        if (barEl) barEl.textContent = '';   // 停止歸零：再按播放從第 1 小節開始
       }
     };
 
@@ -7065,8 +7087,8 @@ window.COURSE = {
       root: { fill: '#e53935', stroke: '#fff', text: '#fff' },
       chord: { fill: '#ffb300', stroke: '#fff', text: '#3e2723' },
       scale: { fill: '#efebe9', stroke: '#bcaaa4', text: '#3e2723' },
-      // v3 特色音：菱形＋紫色。紅＝根音、黃＝和弦音、橘（#ff7043）＝節拍器重拍燈／tab1 食指、綠／紅＝測驗對錯，都沒用紫色菱形
-      accent: { fill: '#7e57c2', stroke: '#fff', text: '#fff', shape: 'diamond', zh: '紫色' },
+      // 特色音：橫向六角形＋紫色（v4 由菱形改寬，字才放得下）。紅＝根音、黃＝和弦音、橘（#ff7043）＝節拍器重拍燈／tab1 食指、綠／紅＝測驗對錯，都是圓點、沒用紫色
+      accent: { fill: '#7e57c2', stroke: '#fff', text: '#fff', shape: 'hex', zh: '紫色' },
       ok: { fill: '#66bb6a', stroke: '#fff', text: '#fff' },
       ng: { fill: '#e53935', stroke: '#fff', text: '#fff' }
     };
@@ -7106,13 +7128,20 @@ window.COURSE = {
       for (let f = first; f <= hi; f++) svg.appendChild(sv('text', { x: xOf(f), y: yB + 28, 'font-size': 11, fill: '#8d6e63', 'text-anchor': 'middle', 'font-family': 'monospace' }, String(f)));
       return { svg: svg, xOf: xOf, yOf: yOf, FW: FW, SS: SS, OPENW: OPENW, lo: lo, hi: hi };
     }
+    // 特色音的橫向六角形（圖上的點、圖例小圖示共用）：半高 11＝上下弦的點不相疊（弦距 24）；半寬 17、平邊半長 11＝10px 的「♯Sol」放得下，左右尖角跟圓點一眼分得出來
+    function hexPts(x, y) { return [x - 11, y - 11, x + 11, y - 11, x + 17, y, x + 11, y + 11, x - 11, y + 11, x - 17, y].join(' '); }
+    function accentIcon() {
+      const s = sv('svg', { class: 'dg-accent', width: 17, height: 11, viewBox: '0 0 34 22', 'aria-hidden': 'true' });
+      s.appendChild(sv('polygon', { points: hexPts(17, 11), fill: COLORS.accent.fill }));
+      return s;
+    }
     function drawDot(b, s, f, label, role) {
       const c = COLORS[role] || COLORS.scale;
-      const g = sv('g', { 'data-k': s + '-' + f }), x = b.xOf(f), y = b.yOf(s), D = 12;   // 菱形半對角 12：上下弦的點不相疊（弦距 24）
-      g.appendChild(c.shape === 'diamond'
-        ? sv('polygon', { points: [x, y - D, x + D, y, x, y + D, x - D, y].join(' '), fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 })
+      const g = sv('g', { 'data-k': s + '-' + f }), x = b.xOf(f), y = b.yOf(s);
+      g.appendChild(c.shape === 'hex'
+        ? sv('polygon', { points: hexPts(x, y), fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 })
         : sv('circle', { cx: x, cy: y, r: 10.5, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-      if (label) g.appendChild(sv('text', { x: x, y: y + 3.5, 'font-size': label.length > (c.shape ? 2 : 3) ? 8 : 10, 'font-weight': 'bold', 'text-anchor': 'middle', fill: c.text, 'font-family': 'Segoe UI, sans-serif' }, label));
+      if (label) g.appendChild(sv('text', { x: x, y: y + 3.5, 'font-size': label.length > (c.shape ? 4 : 3) ? 8 : 10, 'font-weight': 'bold', 'text-anchor': 'middle', fill: c.text, 'font-family': 'Segoe UI, sans-serif' }, label));
       b.svg.appendChild(g);
       return g;
     }
@@ -7155,8 +7184,7 @@ window.COURSE = {
       if (acc.length) {   // 圖下自動圖例；音名照「從根音算的半音」排（旋律小調 F♯、G♯）
         const base = T.pc(spec.root || spec.key), iv = function (n) { return ((n.midi - base) % 12 + 12) % 12; }, names = [];
         acc.slice().sort(function (a, b) { return iv(a) - iv(b); }).forEach(function (n) { if (names.indexOf(n.name) < 0) names.push(n.name); });
-        wrap.appendChild(h('div', { class: 'dg-legend' }, h('span', { class: 'dg-diamond', style: 'color:' + COLORS.accent.fill, text: '◆' }),
-          COLORS.accent.zh + '＝這個音階的特色音（' + names.join('、') + '）'));
+        wrap.appendChild(h('div', { class: 'dg-legend' }, accentIcon(), COLORS.accent.zh + '六角形＝這個音階的特色音（' + names.join('、') + '）'));
       }
       const d = { spec: spec, notes: notes, holder: holder };
       diagrams.push(d);
@@ -7362,6 +7390,8 @@ window.COURSE = {
           if (!QUIZ[q.type]) errs.push(st.id + '：不認得的測驗 type「' + q.type + '」');
           if (!q.id) errs.push(st.id + '：有測驗沒有 id');
           const p = quizParams(q), qn = st.id + ' 測驗 ' + q.id;
+          if (q.pass !== undefined && !(Number.isInteger(q.pass) && q.pass >= 1 && q.pass <= QUIZ_N)) errs.push(qn + '：pass（答對幾題算過）要是 1–' + QUIZ_N + ' 的整數');
+          if (q.hint !== undefined && typeof q.hint !== 'string') errs.push(qn + '：hint（提示）要是字串');
           if (q.type === 'findDegree') {
             const scales = [].concat(p.scale || 'major'), badSc = scales.filter(function (s) { return !T.SCALES[s]; });
             if (!scales.length || badSc.length) { errs.push(qn + '：不認得的 scale「' + badSc.join('、') + '」'); return; }
@@ -7477,13 +7507,16 @@ window.COURSE = {
           onChange();
         });
       } });
+      // 過關線只是顯示：測驗自己給 pass（答對幾題）就用；沒給就預設 8 成（照這組題數算）
+      const need = q.pass || Math.ceil(QUIZ_N * 80 / 100);
       return h('div', { class: 'quiz', 'data-quiz': q.id },
         h('h4', { text: txt(q.title || q.id) }),
-        h('div', { class: 'ex-meta' }, h('span', { text: QUIZ_DESC[q.type] || q.type }), bestEl, startBtn),
+        h('div', { class: 'ex-meta' }, h('span', { text: QUIZ_DESC[q.type] || q.type }), h('span', { class: 'quiz-pass', text: '答對 ' + need + '／' + QUIZ_N + ' 題算過' }), bestEl, startBtn),
+        typeof q.hint === 'string' && q.hint ? h('p', { class: 'muted quiz-hint', text: q.hint }) : null,   // 選填：不會找的時候怎麼找（一般字重，不擠在粗體標題裡）
         body);
     }
     function legend(stage) {
-      // 這頁有特色音（accent）的圖，頁首總圖例才多一項紫色菱形
+      // 這頁有特色音（accent）的圖，頁首總圖例才多一項紫色六角形
       const hasAccent = (stage.concepts || []).concat(stage.exercises || []).some(function (x) {
         return (x.diagrams || []).some(function (d) { return d && d.accent !== undefined; });
       });
@@ -7491,7 +7524,7 @@ window.COURSE = {
         h('span', null, h('i', { style: 'background:' + COLORS.root.fill }), '根音'),
         h('span', null, h('i', { style: 'background:' + COLORS.chord.fill }), '和弦音'),
         h('span', null, h('i', { style: 'background:' + COLORS.scale.fill }), '音階音'),
-        hasAccent ? h('span', null, h('span', { class: 'dg-diamond', style: 'color:' + COLORS.accent.fill, text: '◆' }), '特色音') : null);
+        hasAccent ? h('span', null, accentIcon(), '特色音') : null);
     }
     function renderStage(stage, panel, onChange) {
       panel.textContent = '';
@@ -7633,6 +7666,7 @@ window.COURSE = {
       Metro.setBeats(beatsEl.value);
       document.getElementById('mToggle').addEventListener('click', function () { Metro.toggle(); });
       document.getElementById('progStop').addEventListener('click', function () { Prog.stop(); });
+      document.getElementById('progNow').after(h('span', { class: 'prog-bar', id: 'progBar' }));   // 「第 N／M 小節」：不在 .sb-pname 裡，手機也看得到
       document.querySelectorAll('#labelSeg button').forEach(function (b) { b.addEventListener('click', function () { setLabelMode(b.dataset.mode); }); });
       ui.label = ['degree', 'name', 'solfege'].indexOf(ui.label) >= 0 ? ui.label : 'degree';
       document.querySelectorAll('#labelSeg button').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === ui.label); });
