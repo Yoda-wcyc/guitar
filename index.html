@@ -300,6 +300,7 @@
     .daily-block b { color: #5d4037; }
     .shared-bar { position: sticky; top: 0; z-index: 30; max-width: 1100px; margin: 0 auto 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: center; background: #fff; border-radius: 10px; padding: 8px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-size: 13px; color: #5d4037; }
     body.tab-1 .shared-bar { position: static; }
+    html { overflow-anchor: none; }   /* 播放時吸頂的共用列會長高：關掉捲動錨定，內容跟著往下移，剛按的「■ 停止伴奏」不會被列蓋住 */
     .sb-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .sb-label { font-weight: bold; color: #6d4c41; }
     .shared-bar button { padding: 5px 10px; font-size: 13px; }
@@ -344,6 +345,7 @@
     .dg-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; }
     .dg { background: #faf8f5; border: 1px solid #ece5e0; border-radius: 8px; padding: 6px 8px; max-width: 100%; }
     .dg-head { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 13px; color: #5d4037; margin-bottom: 4px; }
+    .dg-head button { white-space: nowrap; flex-shrink: 0; }   /* 「▶ 播放」不准擠成兩行，長標題自己換行 */
     .dg-scroll { overflow-x: auto; }
     .dg-scroll svg { display: block; }
     .dg-err { color: #b71c1c; font-size: 13px; }
@@ -364,6 +366,9 @@
     .quiz-fb { font-size: 14px; margin: 6px 0; min-height: 20px; }
     .quiz-fb.ok { color: #2e7d32; }
     .quiz-fb.ng { color: #c62828; }
+    .quiz-res { font-size: 14px; color: #5d4037; margin: 0 0 6px; }
+    .quiz-res.ok { color: #2e7d32; font-weight: bold; }
+    .quiz-note { margin: 0 0 6px; }
     .muted { color: #8d6e63; font-size: 13px; }
     @media (max-width: 760px) {
       .course-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -382,6 +387,17 @@
     }
     @media (max-width: 480px) {
       .course-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* 360–390 寬三欄放不下「3 大調＋自然小調」，「調」會一個字掉到第二行 */
+    }
+    @media (max-width: 359px) {
+      /* 320 寬：節拍器一列、伴奏＋標籤一列，播放中也壓在兩列（360 以上不動）：按鈕左右內距、輸入框、燈距、列內間距再縮 */
+      .shared-bar { padding: 4px; gap: 4px 6px; }
+      .shared-bar button { padding: 4px 4px; }
+      .shared-bar input[type=number] { width: 46px; }
+      .lamps { gap: 3px; }
+    }
+    @media (min-width: 761px) {
+      /* 平板／桌機：節拍器＋標籤在第一列，伴奏（12 小節藍調名稱很長）放不下就整塊換到第二列，播放中最多兩列 */
+      #progBox { order: 1; }
     }
   </style>
 </head>
@@ -2150,7 +2166,7 @@ window.COURSE = {
           "week": 4,
           "title": "順階和弦伴奏：C–Am–F–G",
           "steps": [
-            "到 tab1 把 C、Dm、Em、F、G、Am、G7 各按一次，說出各是第幾級（第七級用 G7）。",
+            "到 tab1 把 C、Dm、Em、F、G、Am、G7 各按一次，說出各是第幾級（第七個用 G7 代替不好按的 B°；G7 要說第 5 級：它是 G 和弦再疊一個 F）。",
             "開伴奏 70 BPM，熟了照提速規則（連續 3 次乾淨 +4、出錯退 4）加到 80。",
             "Mi 型裡每小節第一拍彈該和弦的根音：C（5 弦 3 格）、A（5 弦空弦）、F（4 弦 3 格）、G（6 弦 3 格或 3 弦空弦）；其他三拍沿音階上下走。",
             "熟了第一拍改彈和弦的另外兩個音：C 小節 E 或 G、Am 小節 C 或 E、F 小節 A 或 C、G 小節 B 或 D，聽差別。",
@@ -5314,7 +5330,7 @@ window.COURSE = {
           "title": "和聲小調：4–8 格上下行",
           "steps": [
             "級數 6 7 1 2 3 4 ♯5（♯5＝G♯，特色音）。",
-            "建議指法照 La 型（一格一指）：6、5、4 弦 5–8 格；彈到 3 弦整隻手左移一格（4–7 格）；2、1 弦移回 5–8 格；6 弦 4 格 G♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格；隔壁的 6 弦 5 格 A、1 弦 5 格 A 改用中指按（不要用同一根食指連按相鄰兩格），7、8 格照舊用無名指、小指（中指跟無名指之間撐開一格）。",
+            "建議指法照 La 型（一格一指）：6、5、4 弦 5–8 格；彈到 3 弦整隻手左移一格（4–7 格）；2、1 弦移回 5–8 格；6 弦 4 格 G♯、1 弦 4 格 G♯ 不在手的 4 格裡，用食指往左伸一格；隔壁的 6 弦 5 格 A、1 弦 5 格 A 改用中指按（不要用同一根食指連按相鄰兩格），7、8 格照舊用無名指、小指（中指跟無名指之間撐開一格）。\n手小撐不開：6、1 弦 4、5 格時手左移到 4–7 格，7、8 格時移回 5–8 格；2 弦手也留在 4–7 格（一格一指）。",
             "從 6 弦最低的 G♯ 往上：6 弦 4、5、7、8 格；5 弦 5、7、8 格；4 弦 6、7 格；3 弦 4、5、7 格；2 弦 5、6 格；1 弦 4、5、7、8 格，再原路下來算 1 遍。",
             "F→G♯（增二度）有兩處、都跨弦：5 弦 8 格 F → 4 弦 6 格 G♯、2 弦 6 格 F → 1 弦 4 格 G♯，彈到這裡放慢聽。",
             "先四分音符加到 80，再換八分從 60 加回 80。",
@@ -5484,7 +5500,7 @@ window.COURSE = {
           "title": "上行旋律小調、下行自然小調",
           "steps": [
             "圖上的 ▶ 播放：旋律小調那張（特色音 F♯ G♯）只往上、自然小調那張只往下，都播整張 4–8 格；練習只照下面清單從 A 彈到 A。",
-            "上行（旋律小調）：6 弦 5、7、8 格；5 弦 5、7 格；4 弦 4、6、7 格；3 弦 4、5、7 格；2 弦 5、7 格；1 弦 4、5 格。建議指法（一格一指）：6、5 弦手放 5–8 格；4 弦 4 格 F♯ 食指往左伸一格、6 格中指、7 格無名指；3 弦手左移到 4–7 格；2 弦移回 5–8 格；1 弦 4 格 G♯ 食指往左伸一格、5 格 A 改用中指按（不要用同一根食指連按相鄰兩格）。",
+            "上行（旋律小調）：6 弦 5、7、8 格；5 弦 5、7 格；4 弦 4、6、7 格；3 弦 4、5、7 格；2 弦 5、7 格；1 弦 4、5 格。建議指法（一格一指）：6、5 弦手放 5–8 格；4 弦 4 格 F♯ 食指往左伸一格、6 格中指、7 格無名指；3 弦手左移到 4–7 格；2 弦移回 5–8 格；1 弦 4 格 G♯ 食指往左伸一格、5 格 A 改用中指按（不要用同一根食指連按相鄰兩格）。\n手小撐不開：4、1 弦手左移到 4–7 格（4 弦 6 格無名指、7 格小指）。",
             "下行（自然小調，1 弦 5 格的 A 不重彈）：2 弦 8、6、5 格；3 弦 7、5、4 格；4 弦 7、5 格；5 弦 8、7、5 格；6 弦 8、7、5 格。",
             "上下共 29 個音（上行 15、下行 14），最後的 A 留長一點。",
             "過關：80 BPM 八分音符上下 3 遍不停，上行 F♯ G♯、下行 G F。"
@@ -6851,9 +6867,11 @@ window.COURSE = {
         this.users.push(u);
         this.run();
       },
-      remove: function (u) {
+      remove: function (u, keep) {
         this.users = this.users.filter(function (x) { return x !== u; });
         if (!this.users.length && this.timer) { clearInterval(this.timer); this.timer = null; }
+        // 停止：這個使用者已排進去、還沒觸發的畫面更新（節拍燈、小節數、指板圖亮點）一起清掉；keep＝指板圖自然播完，最後一個音照時間亮
+        if (!keep && u.pend) { u.pend.forEach(clearTimeout); u.pend.clear(); }
       },
       run: function () {
         const ctx = getAudioContext();
@@ -6865,7 +6883,14 @@ window.COURSE = {
           this.tick++;
         }
       },
-      at: function (time, fn) { setTimeout(fn, Math.max(0, (time - getAudioContext().currentTime) * 1000)); }
+      // 只給畫面用：排在「聲音真的出來」的時間＝time＋輸出延遲（藍牙耳機可達 0.2 秒）；聲音照 time 排、不動。
+      // u＝排這筆的使用者（節拍器／伴奏／指板圖）：還沒觸發的記在 u.pend，remove(u) 時清掉
+      latency: function () { const c = getAudioContext(); return c.outputLatency || c.baseLatency || 0; },
+      at: function (time, fn, u) {
+        const pend = u.pend || (u.pend = new Set());
+        const id = setTimeout(function () { pend.delete(id); fn(); }, Math.max(0, (time + this.latency() - getAudioContext().currentTime) * 1000));
+        pend.add(id);
+      }
     };
 
     // ---------- 節拍器 ----------
@@ -6875,7 +6900,7 @@ window.COURSE = {
         if (t % 2) return;
         const beat = (t / 2) % Metro.beats;
         playTone(beat === 0 ? 1600 : 1000, 0.05, 0, beat === 0 ? 0.35 : 0.18, time);
-        Clock.at(time, function () { flashLamp(beat); });
+        Clock.at(time, function () { flashLamp(beat); }, Metro.user);
       } },
       setBpm: function (v) {
         v = String(v).trim() === '' ? NaN : Math.round(Number(v));   // 清空或亂打：保留目前速度（Number('') 是 0，會被夾成 40）
@@ -6940,7 +6965,7 @@ window.COURSE = {
             if (self.user !== me) return;
             document.getElementById('progNow').textContent = name;
             document.getElementById('progBar').textContent = '第 ' + (bar + 1) + '／' + M + ' 小節';
-          });
+          }, me);
         } };
         Clock.add(this.user);
         document.getElementById('progName').textContent = progText(this.chords) + (this.bars > 1 ? '（每和弦 ' + this.bars + ' 小節）' : '');
@@ -6950,7 +6975,7 @@ window.COURSE = {
         return true;
       },
       stop: function () {
-        if (this.user) Clock.remove(this.user);
+        if (this.user) Clock.remove(this.user);   // 已排進去、還沒顯示的小節數／和弦名一起清掉
         if (this.owner) this.owner.textContent = this.owner.dataset.label;
         this.user = null; this.owner = null;
         const box = document.getElementById('progBox');
@@ -6969,9 +6994,9 @@ window.COURSE = {
         let i = 0;
         const self = this;
         this.btn = btn;
-        this.user = { align: 'beat', onTick: function (rel, time) {
+        const me = this.user = { align: 'beat', onTick: function (rel, time) {
           if (rel % step) return;
-          if (i >= seq.length) { self.stop(); return; }
+          if (i >= seq.length) { self.stop(true); return; }   // 自然播完：最後一個音的亮點照時間亮完
           const n = seq[i++], dur = step * 30 / Metro.bpm;
           playTone(getNoteFreq(n.midi), dur * 1.1, 0, 0.3, time);
           Clock.at(time, function () {
@@ -6979,13 +7004,13 @@ window.COURSE = {
             if (!g) return;
             g.classList.add('hit');
             setTimeout(function () { g.classList.remove('hit'); }, dur * 900);
-          });
+          }, me);
         } };
         Clock.add(this.user);
         btn.textContent = '■ 停止';
       },
-      stop: function () {
-        if (this.user) Clock.remove(this.user);
+      stop: function (keep) {
+        if (this.user) Clock.remove(this.user, keep);
         if (this.btn) this.btn.textContent = '▶ 播放';
         this.user = null; this.btn = null;
       }
@@ -7087,7 +7112,10 @@ window.COURSE = {
       } });
       const pat = T.patternName(spec, notes);   // 和弦音圖案自動加圖案名，內容不用再寫
       const rootNote = spec.chordTones && notes.filter(function (n) { return n.root; })[0];   // 有 chordTones：紅點是和弦根音，不是調的 1
-      wrap.appendChild(h('div', { class: 'dg-head' }, h('span', { text: [txt(spec.title), pat && pat + ' 圖案', rootNote && '紅點＝' + rootNote.name + '（和弦根音）'].filter(Boolean).join('・') }), btn));
+      // 自動加的兩段各自不斷行（手機上才不會斷成「（和弦根／音）」），整段接在標題後面一起換行；textContent 跟以前一樣
+      const tail = [pat && pat + ' 圖案', rootNote && '紅點＝' + rootNote.name + '（和弦根音）'].filter(Boolean);
+      const title = txt(spec.title);
+      wrap.appendChild(h('div', { class: 'dg-head' }, h('span', null, title, tail.map(function (t, i) { return [i || title ? '・' : '', h('span', { style: 'white-space:nowrap', text: t })]; })), btn));
       wrap.appendChild(holder);
       const acc = notes.filter(function (n) { return roleOf(n) === 'accent'; });
       if (acc.length) {   // 圖下自動圖例；音名照「從根音算的半音」排（旋律小調 F♯、G♯）
@@ -7195,6 +7223,8 @@ window.COURSE = {
     function quizParams(q) { const p = q.params || {}; return q.allowedFrets && !p.allowedFrets ? Object.assign({}, p, { allowedFrets: q.allowedFrets }) : p; }
     const QUIZ_DESC = { findNote: '點指板找音名', findDegree: '點指板找級數', mcTriad: '和弦組成音四選一', mcRelative: '樂理四選一' };
     const QUIZ_N = 10;
+    // 過關線：測驗自己給 pass（答對幾題）就用；沒給就預設 8 成（照這組題數算）。標題列「答對 N／10 題算過」跟做完的結果句共用
+    function quizNeed(q) { return q.pass || Math.ceil(QUIZ_N * 80 / 100); }
     const quizState = { current: null };   // 給自動測試讀目前題目
     function runQuiz(q, body, onDone) {
       let i = 0, score = 0, lastText = '';
@@ -7248,6 +7278,9 @@ window.COURSE = {
         quizState.current = null;
         body.textContent = '';
         body.appendChild(h('div', { class: 'quiz-q', text: '得分 ' + score + '／' + QUIZ_N }));
+        const need = quizNeed(q), passed = score >= need;   // 這一輪的分數對過關線；最佳成績照舊另外存（課程地圖％只算題卡勾選，不看測驗）
+        body.appendChild(h('div', { class: 'quiz-res' + (passed ? ' ok' : ''), text: passed ? '過關（' + score + '／' + QUIZ_N + '，要 ' + need + ' 題）' : '還差 ' + (need - score) + ' 題過關（' + score + '／' + QUIZ_N + '）' }));
+        body.appendChild(h('div', { class: 'muted quiz-note', text: '課程地圖的進度只算練習卡勾「完成」，測驗不算進去。' }));   // 過關了地圖％不會動，先講，免得以為進度壞了
         body.appendChild(h('button', { type: 'button', text: '再做一次', onclick: function () { runQuiz(q, body, onDone); } }));
         onDone(score);
       }
@@ -7416,8 +7449,7 @@ window.COURSE = {
           onChange();
         });
       } });
-      // 過關線只是顯示：測驗自己給 pass（答對幾題）就用；沒給就預設 8 成（照這組題數算）
-      const need = q.pass || Math.ceil(QUIZ_N * 80 / 100);
+      const need = quizNeed(q);
       return h('div', { class: 'quiz', 'data-quiz': q.id },
         h('h4', { text: txt(q.title || q.id) }),
         h('div', { class: 'ex-meta' }, h('span', { text: QUIZ_DESC[q.type] || q.type }), h('span', { class: 'quiz-pass', text: '答對 ' + need + '／' + QUIZ_N + ' 題算過' }), bestEl, startBtn),
